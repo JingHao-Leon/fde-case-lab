@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-09-12T18:06:33.238Z",
+  "recordedAt": "2026-09-12T18:09:33.259Z",
   "sessionId": "sess_fcbbb8ce-950c-4365-9653-37a44630ceb6",
   "event": "PostToolUse",
   "toolName": "Write",
-  "file": "cases/15-content-pipeline/bench.py",
+  "file": "bench.py",
   "outcome": "clear",
   "coverage": "complete",
   "findingCount": 0,
-  "durationMs": 4,
+  "durationMs": 5,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }

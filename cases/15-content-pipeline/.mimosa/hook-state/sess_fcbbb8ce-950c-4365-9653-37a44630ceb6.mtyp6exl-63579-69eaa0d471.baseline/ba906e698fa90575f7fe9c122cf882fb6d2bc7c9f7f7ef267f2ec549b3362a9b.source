@@ -1,0 +1,49 @@
+"""NO.15 回测：人工基线 / 直接 AI 写 / 流水线 三种生产方式的产能与可用率。
+
+复现：python cases/15-content-pipeline/bench.py
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(__file__ and Path(__file__).parent))
+
+from data_gen import gen_briefs
+from solution import NaiveWriter, Pipeline, audit_texts, run_pipeline
+
+DATA = Path(__file__).parent / "data" / "briefs.json"
+HUMAN_PER_DAY = 25  # 一名运营人工日产能上限（案例：一个人每天几十条）
+
+
+def main() -> None:
+    if not DATA.exists():
+        briefs = gen_briefs()
+        DATA.parent.mkdir(exist_ok=True)
+        DATA.write_text(json.dumps({"briefs": briefs, "banned": BANNED},
+                                   ensure_ascii=False), encoding="utf-8")
+    d = json.loads(DATA.read_text(encoding="utf-8"))
+    briefs, banned = d["briefs"], d["banned"]
+    n = len(briefs)
+
+    base_texts = [NaiveWriter(banned).write(b) for b in briefs]
+    base_ok = audit_texts(base_texts, briefs, banned)
+    pipe = run_pipeline(briefs, banned)
+
+    print(f"文案任务 {n} 条（本地生活餐饮商户），校验口径：长度/违禁词/卖点覆盖/结构/查重\n")
+    print(f"{'生产方式':<18}{'可用率':>8}{'人工回退率':>9}{'折算产能(条/人日)':>15}")
+    print("-" * 54)
+    print(f"{'人工写作(现状)':<18}{'100%':>7}{'0%':>8}{HUMAN_PER_DAY:>13}")
+    print(f"{'直接AI写(基线)':<18}{base_ok:>7.0%}{'0%':>8}"
+          f"{HUMAN_PER_DAY / base_ok if base_ok else 999:>13.0f}")
+    print(f"{'流水线+校验+回退':<17}{pipe['final_pass']:>7.0%}"
+          f"{pipe['human']:>8.0%}{HUMAN_PER_DAY / pipe['final_pass']:>13.0f}")
+    print("\n说明：流水线产能按'人工只处理回退件'折算——回退率即人工介入比例；"
+          "未计入批量生成的机器吞吐（实际瓶颈在人工审核环节）。")
+    print("案例对照：高峰一天 200~300 条文案；直接 AI 写的'AI 味'与违禁词问题被"
+          "校验器+回退机制吸收，运营经验沉淀为字段与校验规则（Know-how 变成参数）。")
+
+
+if __name__ == "__main__":
+    main()
