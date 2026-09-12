@@ -53,7 +53,7 @@ FDE（Forward Deployed Engineer，前向部署工程师）的核心不是调模�
 
 ```bash
 # Python 3.11+，依赖只有 numpy / scikit-learn / pandas
-pip install -e .
+pip install numpy scikit-learn pandas pytest
 
 make test    # 76 个测试（约 30 秒）
 make bench   # 运行全部回测
