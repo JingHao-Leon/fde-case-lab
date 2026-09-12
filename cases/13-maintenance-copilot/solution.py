@@ -1,0 +1,77 @@
+"""NO.13 维保工单求解器：历史复用推荐 + 工单路由。
+
+对应 NO.13 的 AI 介入点「月检描述复用 + 工单路由」：
+
+- ReuseRecommender 对 (设备, 本月) 检索该设备近 N 期历史，取最常见的
+  (描述, 处置) 作为填充建议；建议与待填一致 → 计为"自动填充命中"。
+  指标：命中率、录入字符节省比例（对应"一个表格填半天"的减负）。
+- Router 路由：v0 全部给综合组（现状：谁有空谁处理，返工多）；
+  v1 规则：设备类型 → 技能组；v2 规则 + 历史处置多数票校正。
+"""
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+
+
+class ReuseRecommender:
+    def __init__(self, history: list[dict], devices: list[dict], window: int = 6):
+        by_dev: dict[str, list[dict]] = defaultdict(list)
+        for h in sorted(history, key=lambda x: -x["month"]):
+            by_dev[h["dev_id"]].append(h)
+        self.dev_type = {d["dev_id"]: d["type"] for d in devices}
+        self.by_dev = by_dev
+        self.window = window
+
+    def recommend(self, dev_id: str) -> tuple[str, str] | None:
+        recs = self.by_dev.get(dev_id, [])[: self.window]
+        if not recs:
+            return None
+        # 只统计"有异常"的历史记录（正常巡检不构成建议）
+        abnormal = [r for r in recs if r["fix"] != "无"]
+        pool = abnormal or recs
+        counter = Counter((r["desc"], r["fix"]) for r in pool)
+        (desc, fix), _ = counter.most_common(1)[0]
+        return desc, fix
+
+    def audit(self, pending: list[dict]) -> dict:
+        hit = 0
+        saved_chars = total_chars = 0
+        for p in pending:
+            total_chars += len(p["desc"]) + len(p["fix"])
+            rec = self.recommend(p["dev_id"])
+            if rec and rec == (p["desc"], p["fix"]):
+                hit += 1
+                saved_chars += len(p["desc"]) + len(p["fix"])
+            elif rec:
+                saved_chars += int(0.3 * (len(p["desc"]) + len(p["fix"])))
+        return {"hit_rate": hit / len(pending),
+                "chars_saved": saved_chars / max(1, total_chars),
+                "hits": hit}
+
+
+class Router:
+    TEAMS = {"烟感探测器": "探测组", "消火栓泵": "水系统组", "防火卷帘": "联动组",
+             "应急照明": "电气组", "喷淋末端": "水系统组"}
+
+    def __init__(self, history: list[dict], devices: list[dict]):
+        self.dev_type = {d["dev_id"]: d["type"] for d in devices}
+        votes: dict[str, Counter] = defaultdict(Counter)
+        for h in history:
+            votes[h["dev_id"]][h["team"]] += 1
+        self.dev_team = {k: c.most_common(1)[0][0] for k, c in votes.items()}
+
+    def route_v0(self, dev_id: str) -> str:
+        return "综合组"
+
+    def route_v1(self, dev_id: str) -> str:
+        dtype = self.dev_type.get(dev_id)
+        return self.TEAMS.get(dtype, "综合组")
+
+    def route_v2(self, dev_id: str) -> str:
+        if dev_id in self.dev_team:  # 历史处置多数票优先
+            return self.dev_team[dev_id]
+        return self.route_v1(dev_id)
+
+
+def route_accuracy(router_fn, pending: list[dict]) -> float:
+    return sum(1 for p in pending if router_fn(p["dev_id"]) == p["team"]) / len(pending)
