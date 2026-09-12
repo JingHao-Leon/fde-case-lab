@@ -1,0 +1,173 @@
+"""NO.10 零售智能对账求解器：从精确匹配到多级模糊匹配。
+
+两级流水线：
+1. ExactMatcher      —— 只按单号精确 join（对应对账员"先对得上的先划掉"）
+2. FuzzyReconciler   —— 多级匹配：
+   L1 单号精确 join；
+   L2 单号 OCR 相似（等长且仅 1 位混淆集内差异）且金额一致 → 抢救转录错误；
+   L3 剩余按 (金额, 门店) 双边贪心一对一配对，金额差 <= 容差 → 金额漂移；
+   L4 拆单检测：一笔 POS 金额 == 两笔剩余商场金额之和（同店）→ 拆单；
+   其余标注：missing_in_mall（漏记，少收钱）/ extra_in_mall（多记）。
+输出净差异金额（商场应结 - POS 应收）供人工复核。
+"""
+from __future__ import annotations
+
+from collections import defaultdict
+from dataclasses import dataclass, field
+
+OCR_CONFUSION = {"0": "8", "1": "7", "5": "6", "3": "9", "2": "0"}
+AMOUNT_TOL = 0.005  # 精确金额容差（元）
+
+
+@dataclass
+class ReconResult:
+    matched: int = 0
+    rescued_id: list = field(default_factory=list)
+    drift: list = field(default_factory=list)   # (pos_tx, mall_tx)
+    split: list = field(default_factory=list)   # (pos_tx, [mall_tx,...])
+    missing_in_mall: list = field(default_factory=list)  # POS 有、商场没有 → 少收
+    extra_in_mall: list = field(default_factory=list)    # 商场多记
+    net_diff: float = 0.0  # 商场合计 - POS 合计（应向商场追讨的口径之一）
+
+    @property
+    def anomaly_count(self) -> int:
+        return len(self.drift) + len(self.split) + len(self.missing_in_mall) + len(self.extra_in_mall)
+
+
+def _ocr_similar(a: str, b: str) -> bool:
+    """等长且仅 1 位差异，且差异在 OCR 混淆集内。"""
+    if len(a) != len(b):
+        return False
+    diff = [(x, y) for x, y in zip(a, b) if x != y]
+    return len(diff) == 1 and diff[0][1] in OCR_CONFUSION.get(diff[0][0], "")
+
+
+class ExactMatcher:
+    def run(self, pos: list[dict], mall: list[dict]) -> ReconResult:
+        mall_by_id = {m["tx_id"]: m for m in mall}
+        res = ReconResult()
+        pos_sum = mall_sum = 0.0
+        for p in pos:
+            m = mall_by_id.pop(p["tx_id"], None)
+            if m is not None and abs(m["amount"] - p["amount"]) <= AMOUNT_TOL:
+                res.matched += 1
+                pos_sum += p["amount"]
+                mall_sum += m["amount"]
+            else:
+                res.missing_in_mall.append(p)
+                pos_sum += p["amount"]
+        for m in mall_by_id.values():
+            res.extra_in_mall.append(m)
+            mall_sum += m["amount"]
+        res.net_diff = mall_sum - pos_sum
+        return res
+
+
+class FuzzyReconciler:
+    def __init__(self, amount_tol: float = 5.0):
+        self.amount_tol = amount_tol  # 漂移容差（元）
+
+    def run(self, pos: list[dict], mall: list[dict]) -> ReconResult:
+        res = ReconResult()
+        mall_left: dict[str, list[dict]] = defaultdict(list)
+        for m in mall:
+            mall_left[m["tx_id"]].append(m)
+        pos_sum = mall_sum = 0.0
+
+        pos_left = []
+        # L1 精确 + L2 OCR 抢救
+        for p in pos:
+            m = self._peek(mall_left, p["tx_id"])
+            if m is not None and abs(m["amount"] - p["amount"]) <= AMOUNT_TOL:
+                self._consume(mall_left, p["tx_id"], m)
+                res.matched += 1
+                pos_sum += p["amount"]
+                mall_sum += m["amount"]
+                continue
+            m2 = self._pop_ocr(mall_left, p)
+            if m2 is not None:
+                res.rescued_id.append((p, m2))
+                res.matched += 1
+                pos_sum += p["amount"]
+                mall_sum += m2["amount"]
+                continue
+            pos_left.append(p)
+        # L3 金额贪心配对（同店、金额差 <= 容差，一对一）
+        by_store: dict[str, list[dict]] = defaultdict(list)
+        for ms in mall_left.values():
+            by_store[ms[0]["store"]].extend(ms)
+        still_pos = []
+        for p in pos_left:
+            cands = by_store.get(p["store"], [])
+            best_i, best_gap = None, self.amount_tol + 1
+            for i, m in enumerate(cands):
+                gap = abs(m["amount"] - p["amount"])
+                if gap <= self.amount_tol and gap < best_gap:
+                    best_i, best_gap = i, gap
+            if best_i is not None:
+                m = cands.pop(best_i)
+                res.drift.append((p, m))
+                pos_sum += p["amount"]
+                mall_sum += m["amount"]
+            else:
+                still_pos.append(p)
+        # L4 拆单检测：一笔 POS == 两笔剩余商场（同店和）
+        for p in still_pos:
+            pair = self._find_pair(by_store.get(p["store"], []), p["amount"])
+            if pair:
+                for m in pair:
+                    by_store[p["store"]].remove(m)
+                    mall_sum += m["amount"]
+                res.split.append((p, pair))
+                res.matched += 1
+                pos_sum += p["amount"]
+            else:
+                res.missing_in_mall.append(p)
+                pos_sum += p["amount"]
+        for ms in by_store.values():
+            for m in ms:
+                res.extra_in_mall.append(m)
+                mall_sum += m["amount"]
+        res.net_diff = mall_sum - pos_sum
+        return res
+
+    @staticmethod
+    def _peek(mall_left: dict, tx_id: str):
+        lst = mall_left.get(tx_id)
+        return lst[0] if lst else None
+
+    @staticmethod
+    def _consume(mall_left: dict, tx_id: str, m: dict) -> None:
+        lst = mall_left.get(tx_id)
+        if lst and m in lst:
+            lst.remove(m)
+            if not lst:
+                mall_left.pop(tx_id)
+
+    @staticmethod
+    def _pop_ocr(mall_left: dict, p: dict):
+        for tx_id, lst in list(mall_left.items()):
+            if _ocr_similar(p["tx_id"], tx_id) and abs(lst[0]["amount"] - p["amount"]) <= AMOUNT_TOL:
+                m = lst.pop(0)
+                if not lst:
+                    mall_left.pop(tx_id)
+                return m
+        return None
+
+    @staticmethod
+    def _find_pair(cands: list[dict], target: float):
+        n = len(cands)
+        if n < 2:
+            return None
+        # 金额排序后双指针找 sum == target
+        idx = sorted(range(n), key=lambda i: cands[i]["amount"])
+        lo, hi = 0, n - 1
+        while lo < hi:
+            s = cands[idx[lo]]["amount"] + cands[idx[hi]]["amount"]
+            if abs(s - target) <= 0.011:
+                return [cands[idx[lo]], cands[idx[hi]]]
+            if s < target:
+                lo += 1
+            else:
+                hi -= 1
+        return None
