@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
     sys.modules.pop(_m, None)
 
-from data_gen import expert_score, gen_parcels
+from data_gen import EXPERT_W, expert_score, gen_parcels
 from solution import SiteScreener, spearman, topk_overlap
 
 PARCELS = gen_parcels()
@@ -40,7 +40,6 @@ def test_top10_overlap_with_expert():
 
 def test_spearman_positive_with_expert_weights():
     """用专家权重跑筛查，全序应与专家排序高度相关。"""
-    from data_gen import EXPERT_W
     r = SiteScreener(weights=EXPERT_W).screen(PARCELS, top_k=50)
     order = [t["pid"] for t in r["top"]]
     expert_all = sorted((p for p in PARCELS if not p["constraint"]),
