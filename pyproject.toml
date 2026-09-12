@@ -13,7 +13,7 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["cases"]
 python_files = ["test_*.py"]
-addopts = "-q"
+addopts = "-q --import-mode=importlib"
 
 [tool.ruff]
 line-length = 100

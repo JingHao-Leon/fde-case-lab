@@ -7,6 +7,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
+for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
+    sys.modules.pop(_m, None)
 
 from data_gen import gen_demand
 from solution import run_all
