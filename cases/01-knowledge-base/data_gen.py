@@ -1,0 +1,105 @@
+"""NO.1 制造经验传承知识库：生成老师傅经验卡语料 + 新人高频问题测试集。
+
+场景来自《Datawhale FDE 案例 100》NO.1：零部件制造的工艺参数、材料配比、
+设备状态处理等隐性经验掌握在老师傅手里，新人培养要两三个月。
+原案例的验收方式：新人高频问题直接变成知识库测试集，文档解析率约 95%、
+问题召回片段准确率 ≥80% 才算技术通路跑通。
+
+本生成器：
+- 语料：按「材料 × 工艺 × 参数类型」模板生成 240 张经验卡；
+- 查询：每张卡生成 1 条改写问句（词序打乱 + 口语化同义替换）；
+- 噪声：文档入库通道按 95% 解析率模拟 OCR 缺字/错字（可开关）。
+"""
+from __future__ import annotations
+
+import json
+import random
+from pathlib import Path
+
+MATERIALS = ["316L不锈钢", "Q235碳钢", "H13模具钢", "6061铝合金", "TC4钛合金",
+             "Inconel718高温合金", "45号钢", "304不锈钢", "7075铝合金", "HT250铸铁",
+             "17-4PH不锈钢", "TA2纯钛"]
+PROCESSES = ["锻造", "焊接", "热处理", "机加工", "表面淬火", "酸洗钝化", "阳极氧化",
+             "退火", "渗碳", "抛光"]
+PARAMS = [
+    ("温度", "加热温度控制在{v1}-{v2}°C，超过{v2}°C会出现晶粒粗大"),
+    ("配比", "冷却液配比为{v1}:{v2}（水:油），浓度偏差超过5%会导致表面划伤"),
+    ("进给量", "进给量保持在{v1}mm/r以内，超过{v2}mm/r刀具磨损明显加快"),
+    ("保温时间", "保温时间不少于{v1}分钟，厚壁件每增加10mm延长{v2}分钟"),
+]
+CONTEXTS = ["强酸环境服役", "高湿环境服役", "批产急单", "夜班设备冷启动", "新模具首件",
+            "返修件复处理", "高温季节连续作业", "备件代用料"]
+
+# 新人口语别名：制造真实"词汇鸿沟"（查询问 colloquial，经验卡书面）
+MAT_ALIAS = {"316L不锈钢": "316L", "Q235碳钢": "q235", "H13模具钢": "h13料",
+             "6061铝合金": "6061铝", "TC4钛合金": "tc4", "Inconel718高温合金": "718料",
+             "45号钢": "45号", "304不锈钢": "304", "7075铝合金": "7075",
+             "HT250铸铁": "铸铁250", "17-4PH不锈钢": "17-4", "TA2纯钛": "ta2"}
+PROC_ALIAS = {"锻造": "锻打", "焊接": "焊", "热处理": "调质", "机加工": "车铣",
+              "表面淬火": "淬硬", "酸洗钝化": "钝化", "阳极氧化": "氧化",
+              "退火": "烧软", "渗碳": "渗碳", "抛光": "抛光"}
+PARAM_ALIAS = {"温度": "烧到多少度", "配比": "按什么比例兑", "进给量": "走刀放多慢",
+               "保温时间": "要烧多久"}
+
+
+def _mk_card(rng: random.Random, mat: str, proc: str, pi: int, ctx: str) -> dict:
+    ptype, tmpl = PARAMS[pi]
+    v1 = rng.randint(3, 60)
+    v2 = v1 + rng.randint(2, 40)
+    body = tmpl.format(v1=v1, v2=v2)
+    return {
+        "id": f"{mat}|{proc}|{ptype}",
+        "text": f"【{mat}·{proc}·{ptype}】{body}。若遇到{ctx}，"
+                f"按下限执行并通知工艺员复核；老师傅经验：宁慢勿废。",
+    }
+
+
+def gen_corpus(seed: int = 20260913) -> dict:
+    rng = random.Random(seed)
+    cards = []
+    combos = [(m, p, i % len(PARAMS), rng.choice(CONTEXTS))
+              for m in MATERIALS for p in PROCESSES for i in range(2)]
+    for mat, proc, pi, ctx in combos[:240]:
+        cards.append(_mk_card(rng, mat, proc, pi, ctx))
+
+    queries = []
+    for c in cards:
+        mat, proc, ptype = c["id"].split("|")
+        amat, aproc, aparam = MAT_ALIAS[mat], PROC_ALIAS[proc], PARAM_ALIAS[ptype]
+        style = rng.choice([
+            f"{amat}做{aproc}，{aparam}？",
+            f"上批{amat}的{aproc}活，{aparam}，师傅让问工艺",
+            f"{aproc}{amat}的时候{aparam}，麻烦给个准数",
+            f"新人求教：{amat}{aproc}，{aparam}怎么判断",
+        ])
+        queries.append({"q": style, "gold": c["id"]})
+    return {"cards": cards, "queries": queries}
+
+
+def add_ingest_noise(cards: list[dict], parse_rate: float = 0.95,
+                     seed: int = 7) -> list[dict]:
+    """模拟 95% 文档解析率：每张卡以 (1-parse_rate) 概率丢/错几个字符。"""
+    rng = random.Random(seed)
+    out = []
+    for c in cards:
+        t = list(c["text"])
+        if rng.random() > parse_rate:
+            for _ in range(rng.randint(1, 4)):
+                i = rng.randrange(len(t))
+                t[i] = rng.choice("的结构与工艺参数相关")
+        out.append({**c, "text": "".join(t)})
+    return out
+
+
+def main() -> None:
+    out = Path(__file__).parent / "data"
+    out.mkdir(exist_ok=True)
+    corpus = gen_corpus()
+    (out / "corpus.json").write_text(
+        json.dumps(corpus, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"生成 {len(corpus['cards'])} 张经验卡 / {len(corpus['queries'])} 条高频问题查询"
+          f" -> {out/'corpus.json'}")
+
+
+if __name__ == "__main__":
+    main()
