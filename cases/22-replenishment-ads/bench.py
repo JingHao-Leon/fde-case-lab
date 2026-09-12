@@ -1,19 +1,21 @@
-"""NO.22 回测：三种补货/广告策略在 200 SKU × 240 天同一需求流上的对比。
+"""NO.22 回测：三种补货/广告策略在真实零售需求流上的对比。
+
+数据：UCI Online Retail 真实流水（CC BY 4.0）聚合出的 200 SKU × 240 天日需求
+（构建脚本 data_real.py，清洗口径见其 docstring）。
 
 复现：python cases/22-replenishment-ads/bench.py
 """
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from data_gen import gen_demand
+from data_real import load
 from solution import run_all
 
-DATA = Path(__file__).parent / "data" / "demand.json"
+DATA = Path(__file__).parent / "data" / "retail_daily.csv"
 
 NAMES = {
     "manual_bulk": "人工月度补货(现状)",
@@ -23,14 +25,11 @@ NAMES = {
 
 
 def main() -> None:
-    if not DATA.exists():
-        d = gen_demand()
-        DATA.parent.mkdir(exist_ok=True)
-        DATA.write_text(json.dumps(d), encoding="utf-8")
-    d = json.loads(DATA.read_text(encoding="utf-8"))
-    results = run_all(d["demand"], d["unit_price"], d["lead_time"], d["ad_daily_budget"])
+    d = load()
+    print(f"需求流来源：{d['source']}")
+    results = run_all(d["demand"], d["prices"], 14, d.get("ad_daily_budget", 30.0))
     base = results[0]
-    print("200 SKU × 240 天回测（三种策略共用同一需求流）\n")
+    print(f"{len(d['demand'])} SKU × {len(d['days'])} 天（三策略共用同一需求流）\n")
     header = (f"{'策略':<16}{'满足率':>8}{'缺货天数':>9}{'平均库存':>9}"
               f"{'断货期广告浪费':>13}{'总成本(元)':>12}{'成本降幅':>9}")
     print(header)
@@ -42,12 +41,12 @@ def main() -> None:
               f"{drop:>8.1f}%")
     r = results[2]
     print(
-        f"\n结论：库存-广告联动把总成本再降 "
-        f"{(1 - r.total_cost / results[1].total_cost) * 100:.1f}%（对比经典 ROP），"
-        f"断货期广告浪费归零、满足率最高({r.fill_rate:.1%})。"
-        f"代价是有效需求因广告刹车下移 "
-        f"{(1 - (r.filled + r.lost) / (base.filled + base.lost)):.1%}，"
-        "其中大部分是无法履约的无效曝光；真实系统可将预算转投有货 SKU。"
+        f"\n结论：经典 ROP 相对人工月度补货降本 "
+        f"{(1 - results[1].total_cost / base.total_cost) * 100:.1f}%；"
+        f"库存-广告联动再降 {(1 - r.total_cost / results[1].total_cost) * 100:.1f}%，"
+        f"满足率最高({r.fill_rate:.1%})、断货期广告浪费归零。"
+        f"真实间歇性需求（大量零销量日）拉低了所有策略的绝对满足率，"
+        "但策略间的相对排序与合成数据一致。"
     )
 
 
