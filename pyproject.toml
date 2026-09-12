@@ -1,0 +1,19 @@
+[project]
+name = "fde-case-lab"
+version = "0.1.0"
+description = "真实 FDE（Forward Deployed Engineer）案例的可运行工程实现集：每个项目含合成数据生成、求解器、pytest 测试与回测"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = [
+    "numpy>=2.0",
+    "scikit-learn>=1.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["cases"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
