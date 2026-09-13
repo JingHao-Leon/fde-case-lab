@@ -1,0 +1,112 @@
+diff --git a/src/feishu/attachments.ts b/src/feishu/attachments.ts
+index be85fd7..d1972bd 100644
+--- a/src/feishu/attachments.ts
++++ b/src/feishu/attachments.ts
+@@ -1,3 +1,7 @@
++import fs from "node:fs";
++import os from "node:os";
++import path from "node:path";
++
+ export type FeishuImageInput = { type: "image"; data: string; mimeType: string };
+ 
+ const SUPPORTED_IMAGE_MIME = new Set(["image/png", "image/jpeg", "image/webp"]);
+@@ -79,3 +83,41 @@ function looksBinary(bytes: Buffer) {
+   }
+   return controlCount / sampleLen > 0.08;
+ }
++
++// ---- [trade-doc-audit patch] binary office attachments --------------------
++// 二进制办公文档：下载到本地并把路径交给 agent（pi 有 bash/read 工具）
++const SUPPORTED_BINARY_EXT = new Set([
++  ".xlsx", ".xls", ".xlsm", ".pdf", ".docx", ".doc", ".pptx",
++  ".zip", ".rar", ".7z", ".tar", ".gz",
++]);
++export const MAX_BINARY_FILE_BYTES = 20 * 1024 * 1024;
++
++export function isBinaryDocFile(fileName: string): boolean {
++  const lower = fileName.toLowerCase();
++  const idx = lower.lastIndexOf(".");
++  return idx >= 0 && SUPPORTED_BINARY_EXT.has(lower.slice(idx));
++}
++
++export function saveBinaryAttachment(
++  messageId: string,
++  fileName: string,
++  bytes: Buffer,
++): { ok: true; path: string } | { ok: false; error: string } {
++  // 两段路径成分都做字符白名单化：只留字母数字、点、横线、下划线与 CJK，
++  // 路径分隔符必然被替换成 "_"，文件名也不允许 ".."，因此无目录穿越可能。
++  const safeId = messageId.replace(/[^\w-]+/g, "_").slice(0, 80);
++  const safeName = path.basename(fileName).replace(/[^\w.\u4e00-\u9fff-]+/g, "_").slice(0, 120) || "unnamed";
++  if (!safeId || safeId.includes("..") || safeName.includes("..")) {
++    return { ok: false, error: "illegal attachment name" };
++  }
++  const sep = path.sep;
++  const dir = [os.homedir(), ".pi", "agent", "feishu", "downloads", safeId].join(sep);
++  const target = [dir, safeName].join(sep);
++  try {
++    fs.mkdirSync(dir, { recursive: true });
++    fs.writeFileSync(target, bytes);
++    return { ok: true, path: target };
++  } catch (error) {
++    return { ok: false, error: error instanceof Error ? error.message : String(error) };
++  }
++}
+diff --git a/src/feishu/message-handler.ts b/src/feishu/message-handler.ts
+index 5685104..71647d8 100644
+--- a/src/feishu/message-handler.ts
++++ b/src/feishu/message-handler.ts
+@@ -1,4 +1,4 @@
+-import { detectCodeLanguage, decodeTextFile, detectImageMime, type FeishuImageInput, isSupportedImageMime, isSupportedTextFile } from "./attachments.ts";
++import { detectCodeLanguage, decodeTextFile, detectImageMime, isBinaryDocFile, saveBinaryAttachment, MAX_BINARY_FILE_BYTES, type FeishuImageInput, isSupportedImageMime, isSupportedTextFile } from "./attachments.ts";
+ import { buildModelCard, buildResumeCard, buildThinkingCard } from "./cards.ts";
+ import type { ConversationRuntime } from "./runtime.ts";
+ import { claimFeishuMessage, markFeishuMessage } from "./dedupe-store.ts";
+@@ -375,7 +375,9 @@ export class FeishuMessageHandler {
+       }
+ 
+       const fileName = attachment.fileName || "unnamed";
+-      if (!isSupportedTextFile(fileName)) {
++      const asText = isSupportedTextFile(fileName);
++      const asBinary = isBinaryDocFile(fileName);
++      if (!asText && !asBinary) {
+         downloadErrors.push(`文件类型不支持：${fileName}`);
+         continue;
+       }
+@@ -389,14 +391,29 @@ export class FeishuMessageHandler {
+           15000,
+           `文件下载超时：${fileName}`,
+         );
+-        const decoded = decodeTextFile(fileName, resource.bytes);
+-        if (!decoded.ok) {
+-          downloadErrors.push(`文件无法按文本读取：${fileName}`);
+-          continue;
++        if (asText) {
++          const decoded = decodeTextFile(fileName, resource.bytes);
++          if (!decoded.ok) {
++            downloadErrors.push(`文件无法按文本读取：${fileName}`);
++            continue;
++          }
++          const language = detectCodeLanguage(fileName);
++          const suffix = decoded.truncated ? "\n[内容过长，已截断]" : "";
++          fileSections.push(`[Feishu file: ${fileName}]\n\`\`\`${language}\n${decoded.text}${suffix}\n\`\`\``);
++        } else {
++          // [trade-doc-audit patch] 二进制文档落盘，把本地路径交给 agent 处理
++          if (resource.bytes.length > MAX_BINARY_FILE_BYTES) {
++            downloadErrors.push(`文件过大（上限 20MB）：${fileName}`);
++            continue;
++          }
++          const saved = saveBinaryAttachment(msg.messageId, fileName, resource.bytes);
++          if (!saved.ok) {
++            downloadErrors.push(`文件保存失败：${fileName}（${saved.error}）`);
++            continue;
++          }
++          debugLog("feishu.handler.binary_saved", { messageId: msg.messageId, fileName, path: saved.path });
++          fileSections.push(`[Feishu file: ${fileName}]\n本地路径: ${saved.path}\n（二进制文件已下载到本地，请用 bash/read 等工具处理，不要尝试直接读取二进制内容）`);
+         }
+-        const language = detectCodeLanguage(fileName);
+-        const suffix = decoded.truncated ? "\n[内容过长，已截断]" : "";
+-        fileSections.push(`[Feishu file: ${fileName}]\n\`\`\`${language}\n${decoded.text}${suffix}\n\`\`\``);
+       } catch (error) {
+         downloadErrors.push(error instanceof Error ? error.message : `文件下载失败：${fileName}`);
+       }

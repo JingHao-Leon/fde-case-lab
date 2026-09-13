@@ -3,19 +3,20 @@
 [English brief README](README_EN.md)
 
 [![CI](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-106%20passing-brightgreen)](#快速开始)
+[![tests](https://img.shields.io/badge/tests-151%20passing-brightgreen)](#快速开始)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
 
 **Forward Deployed Engineer（FDE，前向部署工程师）案例集与技能库**：
-16 个项目 · 106 个测试 · 真实数据回测 · 10 个可安装 SKILL.md。
-案例来源：《Datawhale FDE 案例 100》（2026-09）中的 16 个真实企业落地案例；
+17 个项目 · 151 个测试 · 真实数据回测 · 10 个可安装 SKILL.md。
+案例来源：《Datawhale FDE 案例 100》（2026-09）中的 16 个真实企业落地案例，
+另有 1 个自有交付案例（23 外贸审单）；
 方法论框架参考 [Awesome-FDE-Roadmap](https://github.com/pierpaolo28/Awesome-FDE-Roadmap)
 （FDE 能力路线图）与 [FDEOps](https://github.com/suboss87/FDEOps)（FDE 技能包）。
 
 > 英文一句话：*A runnable engineering lab for Forward Deployed Engineering —
-> 16 case projects (retrieval, record-linkage, 3D bin packing, inventory
-> simulation, deterministic semantic-layer agents) with 106 green tests and
+> 17 case projects (retrieval, record-linkage, 3D bin packing, inventory
+> simulation, deterministic semantic-layer agents) with 151 green tests and
 > reproducible benchmarks, plus 10 installable AI-agent skills distilled from
 > the Datawhale FDE Case 100 collection.*
 
@@ -56,6 +57,7 @@ FDE（Forward Deployed Engineer，前向部署工程师）的核心不是调模�
 | 事件流链路重建 + 规则检测器 | 20 经营链路 |
 | 规范查表 + 几何覆盖校验 | 21 消防图纸 |
 | 补货策略 + 业务联动的模拟回测 | 22 补货与广告 |
+| LLM 结构化抽取 + 确定性规则引擎（数字不过 LLM） | 23 外贸审单 |
 
 ## 实测结果总览（每个数字都有复现命令）
 
@@ -77,6 +79,7 @@ FDE（Forward Deployed Engineer，前向部署工程师）的核心不是调模�
 | [20 经营链路](cases/20-ops-visibility) | 单据级异常告警 | **29 条实时**（四类全覆盖） | 月末对账 1 条且滞后 |
 | [21 消防图纸](cases/21-fire-drawing) | 合规通过率 | **100%**（80ms/30 空间） | 人工习惯基线 60% |
 | [22 补货+广告](cases/22-replenishment-ads) | 总成本（真实零售需求） | **-67.5%**，满足率 83.6% | 合成对照：-66.4% / 95.8% |
+| [23 外贸审单](cases/23-trade-doc-audit) | 注入错误捕获 / 好样例误报 | **6/6 / 0** | 23 条确定性规则全过 LLM；45 测试全绿；飞书 bot 落地 |
 
 复现全部回测：`make bench`（或逐个运行各案例目录下的 `bench.py`）。
 

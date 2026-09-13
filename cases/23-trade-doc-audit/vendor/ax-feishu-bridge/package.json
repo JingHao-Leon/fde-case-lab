@@ -1,0 +1,77 @@
+{
+  "name": "ax-feishu-bridge",
+  "version": "0.4.9",
+  "description": "Feishu/Lark bridge for coding agents — chat with Pi or DeepSeek Harness from Feishu or Lark",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-coding-agent",
+    "pi",
+    "dsh",
+    "feishu",
+    "lark",
+    "extension"
+  ],
+  "homepage": "https://github.com/AX1202/ax-feishu-bridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AX1202/ax-feishu-bridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AX1202/ax-feishu-bridge/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-attachment-local": "^0.1.0-rc.7",
+    "@larksuiteoapi/node-sdk": "^1.60.0",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*",
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-agent": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-agent-presets": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-session": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-session-query": "^0.1.0-rc.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^24.3.0",
+    "@types/qrcode-terminal": "^0.12.2"
+  },
+  "exports": {
+    "./pi": "./src/adapters/pi/index.ts",
+    "./harness": "./lib/adapters/harness/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "src",
+    "lib",
+    ".pi",
+    "cordis.patch.yml"
+  ],
+  "pi": {
+    "extensions": [
+      "./.pi/extensions/feishu/index.ts"
+    ]
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "test": "node --experimental-strip-types --experimental-transform-types --import ./test/register.mjs --test test/*.test.mjs test/*.test.ts"
+  }
+}

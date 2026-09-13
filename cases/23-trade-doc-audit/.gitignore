@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+work/
+.mimosa/
+.pytest_cache/
+.DS_Store

@@ -1,0 +1,61 @@
+{
+  "doc_type": "export_declaration",
+  "source_file": "declaration_sample.pdf",
+  "pre_entry_no": "2026082200001234",
+  "customs_no": "311120260000123456",
+  "domestic_consignor": {
+    "name": "宁波晨曦照明进出口有限公司",
+    "customs_code": "3302967890",
+    "uscc": "91330200MA2ABCD123"
+  },
+  "overseas_consignee": {
+    "name": "ABC Trading GmbH"
+  },
+  "transport_mode": "江海运输",
+  "vessel": "CMA CGM LYRA / 088W",
+  "supervision_mode": "一般贸易",
+  "levy_type": "一般征税",
+  "trade_country": "德国",
+  "port_of_loading": "宁波港",
+  "port_of_discharge": "德国汉堡",
+  "incoterm": "FOB",
+  "contract_no": "HT-2026-031",
+  "declaration_date": "2026-08-22",
+  "departure_date": "2026-08-25",
+  "package_count": 91,
+  "package_type": "纸箱",
+  "gross_weight_kg": 1740.0,
+  "net_weight_kg": 1540.0,
+  "items": [
+    {
+      "no": 1,
+      "hs_code": "8539500000",
+      "name": "LED灯泡",
+      "spec": "E27 5W 3000K",
+      "qty": 30000,
+      "unit": "个",
+      "country_of_origin": "中国",
+      "destination_country": "德国",
+      "unit_price": 0.35,
+      "amount": 10500.0,
+      "currency": "USD"
+    },
+    {
+      "no": 2,
+      "hs_code": "9405401000",
+      "name": "LED吸顶灯",
+      "spec": "18W 圆形",
+      "qty": 8000,
+      "unit": "个",
+      "country_of_origin": "中国",
+      "destination_country": "德国",
+      "unit_price": 1.2,
+      "amount": 9600.0,
+      "currency": "USD"
+    }
+  ],
+  "totals": {
+    "total_amount": 20100.0,
+    "currency": "USD"
+  }
+}

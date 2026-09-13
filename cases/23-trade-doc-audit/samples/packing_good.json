@@ -1,0 +1,50 @@
+{
+  "doc_type": "packing_list",
+  "source_file": "packing_list_sample.xlsx",
+  "shipper": "Ningbo Chenxi Lighting Import & Export Co., Ltd.",
+  "consignee": "ABC Trading GmbH",
+  "invoice_no": "CX-2026-088",
+  "contract_no": "HT-2026-031",
+  "date": "2026-08-20",
+  "incoterm": "FOB NINGBO",
+  "port_of_loading": "NINGBO",
+  "port_of_discharge": "HAMBURG",
+  "lines": [
+    {
+      "no": 1,
+      "name": "LED 灯泡",
+      "name_en": "LED Bulb",
+      "hs_code": "85395000",
+      "model": "E27-5W",
+      "qty": 30000,
+      "unit": "PCS",
+      "unit_price": 0.35,
+      "amount": 10500.0,
+      "net_weight_kg": 900.0,
+      "gross_weight_kg": 1020.0,
+      "cartons": 51
+    },
+    {
+      "no": 2,
+      "name": "LED 吸顶灯",
+      "name_en": "LED Ceiling Light",
+      "hs_code": "94054010",
+      "model": "CL-18W",
+      "qty": 8000,
+      "unit": "PCS",
+      "unit_price": 1.2,
+      "amount": 9600.0,
+      "net_weight_kg": 640.0,
+      "gross_weight_kg": 720.0,
+      "cartons": 40
+    }
+  ],
+  "totals": {
+    "packages": 91,
+    "package_unit": "CTNS",
+    "net_weight_kg": 1540.0,
+    "gross_weight_kg": 1740.0,
+    "total_amount": 20100.0,
+    "currency": "USD"
+  }
+}
