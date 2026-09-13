@@ -1,13 +1,32 @@
-# FDE Case Lab · 真实 FDE 案例的可运行工程实现集
+# FDE Case Lab · 真实 FDE 案例的可运行工程实现集 + AI Agent 技能包
 
-> 16 个项目 · 100 个测试 · 全部指标真实可复现
-> 案例来源：《Datawhale FDE 案例 100》（2026-09）中的 16 个真实企业落地案例；
-> 方法论框架参考 [Awesome-FDE-Roadmap](https://github.com/pierpaolo28/Awesome-FDE-Roadmap)
-> 与 [FDEOps](https://github.com/suboss87/FDEOps)。
+[![CI](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-106%20passing-brightgreen)](#快速开始)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
+
+**Forward Deployed Engineer（FDE，前向部署工程师）案例集与技能库**：
+16 个项目 · 106 个测试 · 真实数据回测 · 10 个可安装 SKILL.md。
+案例来源：《Datawhale FDE 案例 100》（2026-09）中的 16 个真实企业落地案例；
+方法论框架参考 [Awesome-FDE-Roadmap](https://github.com/pierpaolo28/Awesome-FDE-Roadmap)
+（FDE 能力路线图）与 [FDEOps](https://github.com/suboss87/FDEOps)（FDE 技能包）。
+
+> 英文一句话：*A runnable engineering lab for Forward Deployed Engineering —
+> 16 case projects (retrieval, record-linkage, 3D bin packing, inventory
+> simulation, deterministic semantic-layer agents) with 106 green tests and
+> reproducible benchmarks, plus 10 installable AI-agent skills distilled from
+> the Datawhale FDE Case 100 collection.*
 
 每个项目 = **业务问题翻译 → 求解器 → pytest 测试 → 回测脚本**。
-所有数据由固定种子合成器生成（模拟原案例的数据形态与植入缺陷），
+数据分级：2 个案例使用真实公开数据（UCI Online Retail 真实零售流水、
+Amazon-Google 人工标注实体匹配基准，[来源与许可](datasets/README.md)），
+其余 14 个为固定种子合成数据（模拟原案例的数据形态与植入缺陷），
 所有指标可用一条命令复现，不含任何编造数字。
+
+**覆盖的技术领域**：检索增强生成（RAG）与评测 · 实体匹配 / 记录链接 / 主数据查重 ·
+三维装箱与启发式搜索 · 规则引擎与置信度分流 · 库存策略与业务联动模拟回测 ·
+确定性语义层 Agent · 成本建模与校准飞轮 · 事件流异常检测 · 内容量产流水线 ·
+诉讼时效规则引擎。
 
 ## 为什么做这个仓库
 
@@ -56,6 +75,30 @@ FDE（Forward Deployed Engineer，前向部署工程师）的核心不是调模�
 
 复现全部回测：`make bench`（或逐个运行各案例目录下的 `bench.py`）。
 
+## 🧩 AI Agent 技能包（基于 Datawhale FDE 案例的可行 skill 研究）
+
+参照 [FDEOps](https://github.com/suboss87/FDEOps) 的技能包形态，把 24 个案例的
+方法论按**能力轴**提炼成 AI 编码代理可安装的 SKILL.md。可行性研究
+（[skills/RESEARCH.md](skills/RESEARCH.md)）对 24 个案例做五维评分
+（规则明确度/数据可得性/验收可量化/人机边界/复用度），结论：
+**10 个一级技能可直接安装执行**，5 个二级候选，组织类工作明确不做成技能。
+
+| 技能 | 一句话 | 参考实现 |
+|---|---|---|
+| [fde-discovery](skills/fde-discovery/SKILL.md) | 把模糊抱怨变成可验证的问题定义 | — |
+| [kb-build](skills/kb-build/SKILL.md) | 经验知识库 + 80% 验收线 | cases/01 |
+| [doc-review](skills/doc-review/SKILL.md) | 单据审核分流，误放=0 红线 | cases/02, 09 |
+| [record-link](skills/record-link/SKILL.md) | 实体归一/查重/对账差异分类 | cases/08, 10 |
+| [state-reminder](skills/state-reminder/SKILL.md) | 履约状态机 SLA 提醒 | cases/05 |
+| [recon-chain](skills/recon-chain/SKILL.md) | 链路对账与异常告警 | cases/20 |
+| [cost-quote](skills/cost-quote/SKILL.md) | 成本模型+校准飞轮报价 | cases/17 |
+| [content-pipeline](skills/content-pipeline/SKILL.md) | 内容量产：生成+校验+回退 | cases/15 |
+| [semantic-layer](skills/semantic-layer/SKILL.md) | 确定性语义层问答 | cases/16 |
+| [timeline-check](skills/timeline-check/SKILL.md) | 时间线重建+期限检查 | cases/03 |
+
+安装：把技能目录复制进 agent 的技能目录（与 FDEOps 的 skills CLI 兼容），
+详见 [skills/README.md](skills/README.md)。
+
 ## 快速开始
 
 ```bash
@@ -94,6 +137,40 @@ Land（审视简报/赢得信任）→ Discover（界定问题/验证假设）�
 **业务背景 → 问题定义 → 方案取舍 → 实测数字 → 测试与边界**。
 特别吸收其原则："The kit says what to check. You still decide."——
 所有回测脚本的角色就是"说清楚该检查什么"，业务决策权仍在客户。
+
+## 常见问题（FAQ）
+
+**Q：什么是 FDE（Forward Deployed Engineer）？**
+FDE（前向部署工程师）是 Palantir 首创、现流行于 OpenAI/Scale AI 等公司的角色：
+驻扎在客户现场，把模糊的业务问题翻译成可落地、可验证的 AI 方案，并推进到
+客户的业务流程里。核心能力不是调模型，而是问题翻译、工程交付与效果度量。
+
+**Q：这个仓库适合谁？**
+三类人：想转 FDE 岗的工程师（每个案例都是一次完整的方法论演练）；
+要给团队建 AI 能力的业务负责人（每个 README 都是"问题定义→方案→验收"的模板）；
+做 AI Agent 技能封装的人（skills/ 目录的 SKILL.md 可直接安装）。
+
+**Q：如何复现实验数字？**
+`make test` 跑 106 个测试；`make bench` 或逐个运行 `python cases/<案例>/bench.py`
+输出指标表。数据固定种子或随仓库提交的真实数据文件，离线可复现。
+
+**Q：数据是真实的还是模拟的？**
+分级声明（详见[数据说明](#数据说明诚实边界)）：案例 22 用 UCI Online Retail
+真实零售流水（CC BY 4.0），案例 08 用 Amazon-Google 人工标注实体匹配基准；
+其余 14 个案例的核心数据（制造经验库、车管所办件、达人履约等）为企业私有、
+从未公开，因此按原案例陈述的规模与缺陷比例做固定种子合成，并在各 README
+标注与原案例数字的差距。
+
+**Q：和 Awesome-FDE-Roadmap、FDEOps 是什么关系？**
+互补：Roadmap 提供 FDE 能力路线图（流程轴），FDEOps 提供技能包的组织方式
+（六阶段），本仓库补上两者缺的一环——**可运行、可回测的工程实现**
+（能力轴），三者可组合使用。
+
+**Q：FDE 落地最常见的失败原因是什么？**
+从 24 个案例看，前三名都不是模型：①数据拿不出来或写不回去（08/22）；
+②没有先定验收标准，做完无法证明价值（01/22/24）；③组织不接受，
+AI 没有嵌进现有工作流（02/13/14）。本仓库每个案例 README 的"边界"一节
+都对应记录了这些坑。
 
 ## 数据说明（诚实边界）
 

@@ -1,0 +1,32 @@
+# FDE Case Lab
+
+> 真实 FDE（Forward Deployed Engineer，前向部署工程师）案例的可运行工程实现集。
+> 把《Datawhale FDE 案例 100》（Datawhale，2026-09，24 个中国企业 AI 落地案例）
+> 中的 16 个提炼为「合成/真实数据生成器 + 求解器 + pytest 测试 + 回测脚本」，
+> 并提炼出 10 个可安装的 AI Agent 技能（SKILL.md）。
+
+## 仓库结构
+
+- [README.md](README.md)：总览、16 个案例实测结果、快速开始、数据来源
+- [skills/RESEARCH.md](skills/RESEARCH.md)：24 案例技能可行性研究（五维评分）
+- [skills/README.md](skills/README.md)：10 个 SKILL.md 技能包索引与安装
+- cases/：01 知识库 / 02 办件审核 / 03 诉讼时间线 / 04 选址筛查 / 05 达人建联 /
+  06 3D 装箱 / 08 物料搜索与查重 / 09 财务审核 / 10 智能对账 / 13 维保工单 /
+  15 内容量产 / 16 语义层 Agent / 17 报价引擎 / 20 经营链路 / 21 消防图纸 /
+  22 补货×广告联动
+- datasets/：真实数据来源与许可（UCI Online Retail CC BY 4.0；
+  Magellan/DeepMatcher Amazon-Google 标注基准）
+
+## 关键实测（均可一条命令复现）
+
+- 词表归一化 + 混合检索：Recall@5 66.2% → 99.2%
+- 单据审核分流：误放 0、直通率 78%、产能 15×人工
+- 3D 装箱：首车 97.1 方（人工基线 46.4），规划 5 小时 → 秒级
+- 智能对账：净差异还原误差 -93.8%
+- 补货×广告联动（UCI 真实零售需求）：总成本 -67.5%
+- 非标报价：MAPE 58.4% → 9.2%（校准飞轮）
+- 确定性语义层 Agent：同题执行一致性 100%（对照提示词 Agent 0%）
+
+## 许可
+
+MIT。数据许可见 datasets/README.md。
