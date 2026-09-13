@@ -12,6 +12,7 @@ from data_gen import build_db
 from solution import LinkBuilder, baseline_monthly, detect_anomalies
 
 DB = Path(__file__).parent / "data" / "erp.db"
+DB.parent.mkdir(parents=True, exist_ok=True)  # CI 环境无 data/ 目录
 if not DB.exists():
     build_db(DB)
 LB = LinkBuilder(DB and __import__("sqlite3").connect(DB))

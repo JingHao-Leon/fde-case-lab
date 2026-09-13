@@ -11,7 +11,9 @@ for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
 from data_gen import FAULT_HOURS, FAULT_SITE, build_db
 from solution import NaiveAgent, SemanticAgent, eval_set, safe_site
 
-CONN = build_db(Path(__file__).parent / "data" / "network.db")
+DB = Path(__file__).parent / "data" / "network.db"
+DB.parent.mkdir(parents=True, exist_ok=True)  # CI 环境无 data/ 目录
+CONN = build_db(DB)
 
 
 def test_safe_site_whitelist():
