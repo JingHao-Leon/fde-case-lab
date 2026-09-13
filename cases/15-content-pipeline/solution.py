@@ -15,8 +15,6 @@ from __future__ import annotations
 
 import re
 
-from data_gen import BANNED
-
 HOOK_T = [
     "在{city}开了{years}年的{shop}", "被问了无数次的{shop}", "打工人的{slot}救星",
     "这家{shop}我憋了半年没说", "{city}的{slot}又被这家店承包了",
@@ -77,7 +75,7 @@ class Pipeline:
         d2 = DETAIL[(variant * 3 + 1) % len(DETAIL)]
         reco = RECO[(variant + 2) % len(RECO)]
         body = (f"他家的{brief['dish']}是招牌，{sell[0]}，端上来{d1}。"
-                f"{sell[1]}，{d2}，{reco}，味道真的有点东西，来晚了可别怪我没提醒你，人均{str(s['price'])}元就能吃到这个水准，"
+                f"{sell[1]}，{d2}，{reco}，味道真的有点东西，来晚了可别怪我没提醒你，人均{s['price']!s}元就能吃到这个水准，"
                 f"{STYLE_TAIL[s['style']]}")
         cta = CTA_T[(variant + 1) % len(CTA_T)].format(kw=brief["kw"])
         return f"{hook}，{body}{cta}"

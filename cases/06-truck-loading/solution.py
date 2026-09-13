@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import random
 import time
 from dataclasses import dataclass, field
 
@@ -119,8 +120,8 @@ class HeightMapPacker(BasePacker):
             best = None  # (新高度, x_idx, y_idx, l_eff, w_eff, 高度)
             for lx, wy, hz in orients:
                 # 格数向上取整：网格预留量 >= 箱体实际尺寸，保证连续坐标下不重叠
-                dl = -(-int(round(lx * 100)) // int(RES * 100))
-                dw = -(-int(round(wy * 100)) // int(RES * 100))
+                dl = -(-round(lx * 100) // 10)
+                dw = -(-round(wy * 100) // 10)
                 if dl > nx or dw > ny:
                     continue
                 l_eff, w_eff = dl * RES, dw * RES
@@ -140,7 +141,7 @@ class HeightMapPacker(BasePacker):
             if best is None:
                 continue  # 所有朝向都放不下
             _, x0, y0, l_eff, w_eff, hz = best
-            cells_x, cells_y = int(round(l_eff / RES)), int(round(w_eff / RES))
+            cells_x, cells_y = round(l_eff / RES), round(w_eff / RES)
             z = float(hmap[y0 : y0 + cells_y, x0 : x0 + cells_x].max())
             hmap[y0 : y0 + cells_y, x0 : x0 + cells_x] = z + hz
             placed.append(Placement(it["spec"], x0 * RES, y0 * RES, z, l_eff, w_eff, hz,
@@ -189,8 +190,6 @@ class OptimizedPacker(BasePacker):
         return out
 
     def pack(self, items: list[dict], truck: tuple[float, float, float]) -> PackResult:
-        import random as _random
-
         t0 = time.perf_counter()
         best = None
         per_strategy = max(1, self.n_restarts // len(STRATEGIES))
@@ -200,7 +199,7 @@ class OptimizedPacker(BasePacker):
                 if k == 0:
                     seq = base  # 不扰动的确定性别名
                 else:
-                    seq = self._perturb(base, _random.Random(self.seed * 977 + k * 31))
+                    seq = self._perturb(base, random.Random(self.seed * 977 + k * 31))
                 r = HeightMapPacker(s, preserve_order=True).pack(seq, truck)
                 if best is None or r.loaded_m3 > best.loaded_m3:
                     best = r

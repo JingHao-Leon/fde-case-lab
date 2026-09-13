@@ -17,3 +17,13 @@ addopts = "-q --import-mode=importlib"
 
 [tool.ruff]
 line-length = 100
+exclude = ["datasets/raw"]
+
+[tool.ruff.lint]
+ignore = [
+    "RUF012",  # 类级常量表（规则库/意图集）允许可变默认值
+    "PERF102", # 遍历 dict 键时省略 .keys() 更贴近现有代码风格
+    "RUF007",
+    "RUF015",
+    "PLC0206",
+]

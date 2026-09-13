@@ -27,7 +27,7 @@ def gen_demand(seed: int = 20260913) -> dict:
     weekend_boost = np.ones(N_DAYS)
     weekend_boost[[d for d in range(N_DAYS) if d % 7 in (5, 6)]] = 1.5
     # 缓慢趋势：快销 SKU 逐月爬坡（+40%/4个月），慢销持平
-    trend = np.linspace(1.0, 1.0, N_DAYS)
+    np.linspace(1.0, 1.0, N_DAYS)
     fast_mask = tiers == "fast"
     demand = np.zeros((N_SKU, N_DAYS), dtype=int)
     for i in range(N_SKU):

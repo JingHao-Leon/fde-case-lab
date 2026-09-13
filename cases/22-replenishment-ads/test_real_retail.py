@@ -29,8 +29,8 @@ def test_policies_run_on_real_demand():
 
 
 def test_adaptive_zero_ad_waste_on_real_data():
-    results = run_all(demand := load()["demand"], prices := load()["prices"],
-                      lead := 14, ad_budget := 30.0)
+    results = run_all(_demand := load()["demand"], _prices := load()["prices"],
+                      _lead := 14, _ad_budget := 30.0)
     adaptive = results[2]
     assert adaptive.ad_waste == 0.0
     # 成本排序：联动 ≤ ROP ≤ 人工（真实需求上依旧成立）

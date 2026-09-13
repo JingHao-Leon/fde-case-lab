@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from data_gen import gen_cases
-from solution import StatuteChecker, TimelineBuilder, audit_all
+from solution import StatuteChecker, audit_all
 
 DATA = Path(__file__).parent / "data" / "cases.json"
 

@@ -42,7 +42,7 @@ def main() -> None:
     planted_n = sum(1 for t in truth if t["mall_status"] != "ok")
     print(f"流水：POS {len(pos)} 笔 / 商场 {len(mall)} 笔，植入差异 {planted_n} 笔\n")
 
-    manual_s = len(pos) * 0.35  # 人工逐笔 0.35s/笔（肉眼+核对）
+    len(pos) * 0.35  # 人工逐笔 0.35s/笔（肉眼+核对）
     rows = []
     for name, solver in (("精确匹配(第一轮人工划账)", ExactMatcher()),
                          ("多级模糊匹配(Fuzzy)", FuzzyReconciler())):

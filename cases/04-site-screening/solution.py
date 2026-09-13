@@ -12,8 +12,6 @@
 """
 from __future__ import annotations
 
-import math
-
 DEFAULT_W = {"area": 0.20, "road": 0.15, "utility": 0.20, "sewage": 0.15,
              "service": 0.15, "cost": 0.15}
 HARD = {"历史文化保护线", "生态红线", "断裂带避让区"}

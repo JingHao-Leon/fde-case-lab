@@ -1,5 +1,7 @@
 # FDE Case Lab · 真实 FDE 案例的可运行工程实现集 + AI Agent 技能包
 
+[English brief README](README_EN.md)
+
 [![CI](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-106%20passing-brightgreen)](#快速开始)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -27,6 +29,9 @@ Amazon-Google 人工标注实体匹配基准，[来源与许可](datasets/README
 三维装箱与启发式搜索 · 规则引擎与置信度分流 · 库存策略与业务联动模拟回测 ·
 确定性语义层 Agent · 成本建模与校准飞轮 · 事件流异常检测 · 内容量产流水线 ·
 诉讼时效规则引擎。
+
+![benchmark](docs/benchmark.png)
+*11 组基线对比（全部可复现，指标定义见各案例 README；生成脚本 `scripts/gen_chart.py`）*
 
 ## 为什么做这个仓库
 

@@ -16,7 +16,6 @@ from solution import (
     BaselineManual,
     SprinklerPlanner,
     compliance_rate,
-    hydrant_layout,
     total_heads,
 )
 

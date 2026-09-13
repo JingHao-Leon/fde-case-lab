@@ -24,7 +24,7 @@ def _pos_of(truth, status=None):
 def _mall_of(truth):
     """从真值+状态推导商场账（与 data_gen 同构，避免依赖文件）。"""
     import random
-    rng = random.Random(99)
+    random.Random(99)
     mall = []
     for t in truth:
         st = t["mall_status"]

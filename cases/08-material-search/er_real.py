@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
-
 from solution import normalize
 
 DATA_DIR = Path(__file__).parent.parent.parent / "datasets" / "amazon_google"

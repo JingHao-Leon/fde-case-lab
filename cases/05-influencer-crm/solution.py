@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import math
-from collections import Counter
 
 STATE_ORDER = ["建联", "寄样", "收样", "创作", "提交"]
 SLA = {"建联": 3, "寄样": 4, "收样": 3, "创作": 7, "提交": 999}  # 各状态停留上限（天）

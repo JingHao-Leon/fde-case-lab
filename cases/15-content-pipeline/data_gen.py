@@ -56,7 +56,7 @@ def main() -> None:
     briefs = gen_briefs()
     (out / "briefs.json").write_text(
         json.dumps({"briefs": briefs, "banned": BANNED}, ensure_ascii=False), encoding="utf-8")
-    print(f"生成 {len(briefs)} 条文案任务（{len(set(b['shop']['shop'] for b in briefs))} 家商户）"
+    print(f"生成 {len(briefs)} 条文案任务（{len({b['shop']['shop'] for b in briefs})} 家商户）"
           f"，违禁词 {len(BANNED)} 个 -> {out/'briefs.json'}")
 
 

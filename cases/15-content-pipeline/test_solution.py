@@ -24,7 +24,7 @@ def test_baseline_violates_banned_words():
 def test_pipeline_output_has_no_banned_words():
     p = Pipeline(banned=BANNED)
     for b in BRIEFS[:60]:
-        t, st = p.write(b)
+        t, _st = p.write(b)
         assert not any(w in t for w in BANNED), f"流水线输出违禁词: {t[:30]}"
 
 

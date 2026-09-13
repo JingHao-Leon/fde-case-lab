@@ -9,9 +9,8 @@ for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
     sys.modules.pop(_m, None)
 
 import numpy as np
-
 from data_gen import gen_specs
-from solution import CalibratedQuote, ExpertQuote, RuleQuote, human_review_ratio, mape
+from solution import CalibratedQuote, RuleQuote, human_review_ratio, mape
 
 SPECS = gen_specs()
 TRAIN = SPECS[:150]

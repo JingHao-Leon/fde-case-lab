@@ -58,7 +58,7 @@ def gen_catalog(seed: int = 20260913, target: int = 1200) -> dict:
     guard = 0
     while len(truth) < target and guard < target * 50:
         guard += 1
-        cat, tmpl, spec_t, codes = rng.choice(combos)
+        cat, tmpl, _spec_t, codes = rng.choice(combos)
         name, spec = _mk_name(rng, cat, tmpl)
         brand = rng.choice(BRANDS)
         key = (name, spec, brand)

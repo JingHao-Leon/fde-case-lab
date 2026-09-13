@@ -1,0 +1,34 @@
+name: 新案例提案
+description: 提议新增一个 FDE 案例项目或技能
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 业务场景
+      description: 原案例编号或你的真实交付场景；谁在用、痛点是什么
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 技术问题定义
+      description: 抽象成什么可计算/可回测的问题；基线和优化方法分别是什么
+    validations:
+      required: true
+  - type: textarea
+    id: metric
+    attributes:
+      label: 验收指标
+      description:打算用哪些指标证明有效；数据从哪来（真实/合成+理由）
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自查
+      options:
+        - label: 已阅读 CONTRIBUTING.md 的新案例要求
+          required: true
+        - label: 该场景与现有 16 个案例不重复（或明显更优）
+          required: true

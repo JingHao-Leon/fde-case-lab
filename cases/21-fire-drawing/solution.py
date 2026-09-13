@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import math
 
-from data_gen import EXTINGUISHER_M, HAZARD_SPEC, HYDRANT_R, SPACE_HAZARD
+from data_gen import EXTINGUISHER_M, HAZARD_SPEC, HYDRANT_R
 
 
 class SprinklerPlanner:

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this repository in your work, please cite it as below."
+title: "FDE Case Lab: runnable engineering implementations of real Forward Deployed Engineering cases"
+authors:
+  - family-names: "JingHao"
+    given-names: "Leon"
+    website: "https://github.com/JingHao-Leon"
+    orcid: "https://github.com/JingHao-Leon"
+repository-code: "https://github.com/JingHao-Leon/fde-case-lab"
+abstract: "16 runnable case projects distilled from the Datawhale FDE Case 100
+  collection (retrieval, record linkage, 3D bin packing, inventory simulation,
+  deterministic semantic-layer agents), each with seeded or real data
+  generators, pytest suites and reproducible benchmarks, plus 10 installable
+  AI-agent skills."
+keywords:
+  - forward-deployed-engineering
+  - ai-agents
+  - record-linkage
+  - bin-packing
+  - semantic-layer
+  - reproducibility
+license: MIT
+version: 1.0.0
+date-released: "2026-09-14"

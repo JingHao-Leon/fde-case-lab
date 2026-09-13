@@ -12,7 +12,6 @@ Chen, Sain, Guo (2012)，541,909 笔真实交易（2010-12-01 ~ 2011-12-09）。
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pandas as pd

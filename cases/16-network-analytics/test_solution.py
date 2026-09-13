@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
     sys.modules.pop(_m, None)
 
-from data_gen import FAULT_HOURS, FAULT_SITE, build_db
+from data_gen import FAULT_SITE, build_db
 from solution import NaiveAgent, SemanticAgent, eval_set, safe_site
 
 DB = Path(__file__).parent / "data" / "network.db"

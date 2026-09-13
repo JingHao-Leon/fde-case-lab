@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from data_gen import gen_parcels
-from solution import SiteScreener, spearman, topk_overlap
+from solution import SiteScreener, topk_overlap
 
 DATA = Path(__file__).parent / "data" / "parcels.json"
 

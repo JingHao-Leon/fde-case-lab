@@ -9,7 +9,6 @@ for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
     sys.modules.pop(_m, None)
 
 import pytest
-
 from data_gen import BREAK_EVEN_M3, TRUCK_H, TRUCK_L, TRUCK_W, gen_orders
 from solution import (
     HeightMapPacker,

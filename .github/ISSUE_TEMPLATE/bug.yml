@@ -1,0 +1,30 @@
+name: Bug 报告
+description: 报告测试失败、数字无法复现或实现错误
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 与预期不符的现象（最好是 pytest/bench 的报错输出）
+    validations:
+      required: true
+  - type: input
+    id: case
+    attributes:
+      label: 涉及案例
+      placeholder: "cases/10-reconciliation"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现命令
+      placeholder: "python cases/10-reconciliation/bench.py"
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境
+      placeholder: "Python 3.11.x / macOS 26 / numpy 2.4"

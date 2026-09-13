@@ -82,7 +82,7 @@ def audit(bills: list[dict], history_nos: set[str] | None = None) -> dict:
     total = auto = 0
     subject_ok = 0
     caught = missed = 0
-    mapper = SubjectMapper()
+    SubjectMapper()
     for b in bills:
         total += 1
         r = reviewer.review(b, history_mode=True)

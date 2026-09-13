@@ -23,8 +23,8 @@ from solution import (
     NaiveRowPacker,
     OptimizedPacker,
     PackResult,
-    profit_usd,
     pack_fleet,
+    profit_usd,
     validate_no_overlap,
 )
 

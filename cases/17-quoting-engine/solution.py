@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from data_gen import FINISH, MATERIALS, PROCESSES, TOL
 
 # —— 企业成本规则库（显式参数，注意与 data_gen 里的隐性真实参数有系统性偏差）——
@@ -44,7 +43,7 @@ class ExpertQuote:
     表面处理、公差细档全靠均摊——隐性经验无法规模化的根因。
     """
 
-    def fit(self, specs: list[dict]) -> "ExpertQuote":
+    def fit(self, specs: list[dict]) -> ExpertQuote:
         groups: dict[tuple[str, str], list[tuple[float, float]]] = {}
         for s in specs:
             w = MATERIALS[s["material"]][0] * s["volume_cm3"] / 1000
@@ -82,7 +81,7 @@ class CalibratedQuote:
         tol = [TOL[spec["tolerance"]], spec["qty"] ** -0.5]
         return [1.0, rule_cost(spec)] + proc + tol
 
-    def fit(self, specs: list[dict]) -> "CalibratedQuote":
+    def fit(self, specs: list[dict]) -> CalibratedQuote:
         X = np.array([self._features(s) for s in specs])
         y = np.array([s["expert_price"] for s in specs])
         # 岭回归（小样本防过拟合），特征已含截距

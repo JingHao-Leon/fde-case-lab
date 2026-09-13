@@ -10,8 +10,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from data_gen import gen_briefs
-from solution import NaiveWriter, Pipeline, audit_texts, run_pipeline
+from data_gen import BANNED, gen_briefs
+from solution import NaiveWriter, audit_texts, run_pipeline
 
 DATA = Path(__file__).parent / "data" / "briefs.json"
 WORK_MIN = 480.0  # 每人每天 8 小时

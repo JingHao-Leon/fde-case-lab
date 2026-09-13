@@ -10,8 +10,8 @@ for _m in ("data_gen", "solution"):  # 跨案例同名模块缓存隔离
 
 from data_gen import gen_pipeline, gen_world
 from solution import (
-    MatchRanker,
     FollowersRanker,
+    MatchRanker,
     ReminderEngine,
     RuleRanker,
     fulfillment_cycles,
