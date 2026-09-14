@@ -3,13 +3,13 @@
 > 中文完整版：[README.md](README.md)（本文件为英文精简版）
 
 A runnable engineering lab for **Forward Deployed Engineering (FDE)** —
-16 case projects distilled from the *Datawhale FDE Case 100* collection
+17 case projects distilled from the *Datawhale FDE Case 100* collection
 (24 real enterprise AI deployment cases, Sept 2026), each shipped as
 **data generator + solver + pytest suite + benchmark script**, plus
 **10 installable AI-agent skills** distilled from the same corpus.
 
 [![CI](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/JingHao-Leon/fde-case-lab/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-106%20passing-brightgreen)](#quick-start)
+[![tests](https://img.shields.io/badge/tests-151%20passing-brightgreen)](#quick-start)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![benchmark](docs/benchmark.png)
@@ -39,7 +39,7 @@ A runnable engineering lab for **Forward Deployed Engineering (FDE)** —
 
 ```bash
 pip install numpy scikit-learn pandas pytest
-make test    # 106 tests (~30 s)
+make test    # 151 tests (~40 s)
 make bench   # run all benchmarks
 ```
 
