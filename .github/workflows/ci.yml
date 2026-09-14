@@ -15,7 +15,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install dependencies
-        run: pip install numpy scikit-learn pandas pytest openpyxl ruff
+        run: |
+          pip install numpy scikit-learn pandas pytest openpyxl ruff
+          pip install -r cases/23-trade-doc-audit/requirements.txt
       - name: Lint
         run: ruff check .
       - name: Run full test suite

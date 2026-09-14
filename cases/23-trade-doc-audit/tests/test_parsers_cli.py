@@ -5,6 +5,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).parent.parent
 SAMPLES = ROOT / "samples"
 sys.path.insert(0, str(ROOT))
@@ -64,7 +66,7 @@ class TestExcelParsing:
 class TestPdfParsing:
     def test_text_extracted(self):
         if _pdfplumber is None:
-            self.skipTest("pdfplumber 未安装（CI 最小依赖环境）")
+            pytest.skip("pdfplumber 未安装（CI 最小依赖环境）")
         raw = parse_pdf(SAMPLES / "packing_list_sample.pdf")
         text = "\n".join(raw["pages_text"])
         assert "PACKING LIST" in text
@@ -110,7 +112,7 @@ class TestCli:
 
     def test_parse_pdf(self, tmp_path):
         if _pdfplumber is None:
-            self.skipTest("pdfplumber 未安装（CI 最小依赖环境）")
+            pytest.skip("pdfplumber 未安装（CI 最小依赖环境）")
         out = tmp_path / "raw.json"
         code, _ = run_cli("parse", str(SAMPLES / "packing_list_sample.pdf"), "-o", str(out))
         assert code == 0
