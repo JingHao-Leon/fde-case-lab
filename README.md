@@ -119,7 +119,7 @@ FDE（Forward Deployed Engineer，前向部署工程师）的核心不是调模�
 # Python 3.11+，依赖只有 numpy / scikit-learn / pandas
 pip install numpy scikit-learn pandas pytest
 
-make test    # 100 个测试（约 30 秒）
+make test    # 151 个测试（约 1 分钟）
 make bench   # 运行全部回测
 ```
 
@@ -165,7 +165,7 @@ FDE（前向部署工程师）是 Palantir 首创、现流行于 OpenAI/Scale AI
 做 AI Agent 技能封装的人（skills/ 目录的 SKILL.md 可直接安装）。
 
 **Q：如何复现实验数字？**
-`make test` 跑 106 个测试；`make bench` 或逐个运行 `python cases/<案例>/bench.py`
+`make test` 跑 151 个测试；`make bench` 或逐个运行 `python cases/<案例>/bench.py`
 输出指标表。数据固定种子或随仓库提交的真实数据文件，离线可复现。
 
 **Q：数据是真实的还是模拟的？**
